@@ -1,35 +1,42 @@
 const express = require('express');
-const { all, get, run } = require('./db');
 const { authRequired } = require('./auth');
+const {
+  Projeto,
+  Campanha,
+  Parceiro,
+  NoticiaEvento,
+  DocumentoTransparencia,
+  Galeria
+} = require('./models');
 
 const tables = {
   projetos: {
-    table: 'projetos',
+    model: Projeto,
     fields: ['titulo', 'descricao', 'imagem_url', 'destaque', 'ativo'],
     required: ['titulo', 'descricao']
   },
   campanhas: {
-    table: 'campanhas',
+    model: Campanha,
     fields: ['titulo', 'descricao', 'meta', 'status', 'imagem_url', 'ativo'],
     required: ['titulo', 'descricao']
   },
   parceiros: {
-    table: 'parceiros',
+    model: Parceiro,
     fields: ['nome', 'descricao', 'logo_url', 'site_url', 'ativo'],
     required: ['nome']
   },
   'noticias-eventos': {
-    table: 'noticias_eventos',
+    model: NoticiaEvento,
     fields: ['titulo', 'resumo', 'conteudo', 'data_evento', 'imagem_url', 'ativo'],
     required: ['titulo', 'resumo']
   },
   documentos: {
-    table: 'documentos_transparencia',
+    model: DocumentoTransparencia,
     fields: ['nome', 'descricao', 'link_url', 'tipo'],
     required: ['nome', 'link_url']
   },
   galeria: {
-    table: 'galeria',
+    model: Galeria,
     fields: ['titulo', 'descricao', 'imagem_url', 'categoria'],
     required: ['titulo', 'imagem_url']
   }
@@ -52,7 +59,7 @@ function registerCrudRoutes(app) {
 
     router.get('/', async (_req, res, next) => {
       try {
-        const rows = await all(`SELECT * FROM ${config.table} ORDER BY id DESC`);
+        const rows = await config.model.find().sort({ criado_em: -1 });
         res.json(rows);
       } catch (error) {
         next(error);
@@ -65,12 +72,7 @@ function registerCrudRoutes(app) {
         const missing = validate(data, config.required);
         if (missing.length) return res.status(400).json({ message: `Campos obrigatórios: ${missing.join(', ')}` });
 
-        const placeholders = config.fields.map(() => '?').join(', ');
-        const result = await run(
-          `INSERT INTO ${config.table} (${config.fields.join(', ')}) VALUES (${placeholders})`,
-          config.fields.map((field) => data[field])
-        );
-        const created = await get(`SELECT * FROM ${config.table} WHERE id = ?`, [result.id]);
+        const created = await config.model.create(data);
         return res.status(201).json(created);
       } catch (error) {
         next(error);
@@ -83,9 +85,8 @@ function registerCrudRoutes(app) {
         const missing = validate(data, config.required);
         if (missing.length) return res.status(400).json({ message: `Campos obrigatórios: ${missing.join(', ')}` });
 
-        const set = config.fields.map((field) => `${field} = ?`).join(', ');
-        await run(`UPDATE ${config.table} SET ${set} WHERE id = ?`, [...config.fields.map((field) => data[field]), req.params.id]);
-        const updated = await get(`SELECT * FROM ${config.table} WHERE id = ?`, [req.params.id]);
+        const updated = await config.model.findByIdAndUpdate(req.params.id, data, { new: true, runValidators: true });
+        if (!updated) return res.status(404).json({ message: 'Registro não encontrado.' });
         return res.json(updated);
       } catch (error) {
         next(error);
@@ -94,7 +95,7 @@ function registerCrudRoutes(app) {
 
     router.delete('/:id', authRequired, async (req, res, next) => {
       try {
-        await run(`DELETE FROM ${config.table} WHERE id = ?`, [req.params.id]);
+        await config.model.findByIdAndDelete(req.params.id);
         return res.json({ message: 'Registro excluído com sucesso.' });
       } catch (error) {
         next(error);

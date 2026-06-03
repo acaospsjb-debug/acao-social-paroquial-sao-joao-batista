@@ -1,11 +1,11 @@
-const { createSchema } = require('./schema');
 const { ensureInitialData } = require('./initialData');
-require('dotenv').config();
+require('./env');
+const { connectMongo } = require('./mongo');
 
 async function seed() {
-  await createSchema();
+  await connectMongo();
   await ensureInitialData();
-  console.log('Banco criado e seed executado com sucesso.');
+  console.log('Seed do MongoDB executado com sucesso.');
 }
 
 seed().then(() => process.exit(0)).catch((error) => {

@@ -6,20 +6,27 @@ Site institucional com painel administrativo simples para a ONG Ação Social Pa
 
 - Frontend: React + Vite, Tailwind CSS, React Router DOM
 - Backend: Node.js + Express
-- Banco local: SQLite
+- Banco: MongoDB Atlas via Mongoose
 - Autenticação: JWT + senha criptografada com bcrypt
 
-## Banco de dados SQLite
+## MongoDB Atlas
 
-O servidor usa SQLite para persistir os conteúdos administráveis do site.
+O backend conecta no MongoDB Atlas usando Mongoose.
 
-- Caminho padrão: `./database/site.db`
-- Variável para personalizar o caminho: `DATABASE_PATH`
-- Se `DATABASE_PATH` não for definida, o sistema usa automaticamente `./database/site.db`.
-- A pasta `database` é criada automaticamente se não existir.
-- As tabelas são criadas automaticamente ao iniciar o servidor, sem apagar dados existentes.
-- O banco não é recriado quando já existe.
-- Os dados do site ficam no servidor e continuam salvos após F5, limpeza de cache, limpeza de cookies ou fechamento do navegador.
+- Nome do banco: `acao_social`
+- Variavel de ambiente obrigatoria: `MONGODB_URI`
+- A string real do Atlas deve ficar somente no arquivo `.env` local ou nas variaveis de ambiente da hospedagem.
+- Nao coloque usuario e senha do MongoDB no codigo.
+
+Exemplo de `.env` local:
+
+```env
+MONGODB_URI=mongodb+srv://USUARIO:SENHA@cluster0.f2eoii1.mongodb.net/acao_social?retryWrites=true&w=majority&appName=Cluster0
+PORT=3000
+ADMIN_EMAIL=seu-email-admin
+ADMIN_PASSWORD=sua-senha-admin
+JWT_SECRET=uma-chave-grande-e-secreta
+```
 
 ## Instalação
 
@@ -27,19 +34,29 @@ Opção mais simples, a partir da pasta raiz do projeto:
 
 ```bash
 npm install
-npm run seed
 npm run dev
 ```
 
 O comando `npm run dev` sobe backend e frontend ao mesmo tempo.
 
-Opção manual, em dois terminais:
+Antes de iniciar, configure o arquivo `.env` na raiz do projeto com as variáveis de ambiente do backend.
+
+```env
+MONGODB_URI=mongodb+srv://USUARIO:SENHA@cluster0.f2eoii1.mongodb.net/acao_social?retryWrites=true&w=majority&appName=Cluster0
+PORT=3000
+ADMIN_EMAIL=email-do-admin
+ADMIN_PASSWORD=senha-do-admin
+JWT_SECRET=uma-chave-grande-e-secreta
+CLOUDINARY_CLOUD_NAME=seu-cloud-name
+CLOUDINARY_API_KEY=sua-api-key
+CLOUDINARY_API_SECRET=seu-api-secret
+```
+
+Opcao manual para rodar somente o backend:
 
 ```bash
 cd server
 npm install
-copy .env.example .env
-npm run seed
 npm run dev
 ```
 
@@ -48,7 +65,6 @@ Em outro terminal:
 ```bash
 cd client
 npm install
-copy .env.example .env
 npm run dev
 ```
 
@@ -57,15 +73,13 @@ No Windows, se o PowerShell bloquear `npm`, use `npm.cmd` no lugar de `npm`.
 URLs padrão:
 
 - Site público: `http://localhost:5173`
-- API: `http://localhost:4000`
+- API: `http://localhost:3000`
 - Painel admin: `http://localhost:5173/admin`
 
-## Login inicial do painel
+## Login do painel
 
-- E-mail: `admin@asp.org.br`
-- Senha: `admin123`
-
-Altere estes dados no `.env` antes de recriar o seed em um ambiente real.
+O login administrativo é criado automaticamente no MongoDB usando `ADMIN_EMAIL` e `ADMIN_PASSWORD`.
+Essas credenciais devem ficar somente no `.env` local e nas variáveis de ambiente da hospedagem.
 
 ## O que está pronto
 
@@ -73,7 +87,7 @@ Altere estes dados no `.env` antes de recriar o seed em um ambiente real.
 - Botões estratégicos de WhatsApp usando link `wa.me`.
 - API REST com CRUD para projetos, campanhas, parceiros, notícias/eventos, documentos e galeria.
 - Painel `/admin` com login, dashboard, CRUDs e edição de dados básicos da ONG.
-- Banco SQLite com tabelas e seed inicial baseado no contexto da ONG.
+- Conexao com MongoDB Atlas configurada para a API.
 - Estrutura visual para documentos de transparência e parceiros.
 - Inicialização automática dos dados mínimos ao subir a API, caso o banco ainda esteja vazio.
 - Upload local de imagens, logomarcas e documentos pelo painel administrativo.
@@ -82,32 +96,30 @@ Altere estes dados no `.env` antes de recriar o seed em um ambiente real.
 
 O painel permite enviar arquivos diretamente do computador para imagens de projetos, campanhas, notícias, galeria, logomarcas de parceiros e documentos de transparência.
 
-- Os arquivos ficam salvos em `server/uploads`.
-- A API publica os arquivos em `http://localhost:4000/uploads/nome-do-arquivo`.
+- Os arquivos ficam salvos no Cloudinary.
+- O MongoDB salva apenas a URL retornada pelo Cloudinary.
 - Tipos aceitos: JPG, PNG, WEBP, SVG, PDF, DOC e DOCX.
 - Limite por arquivo: 10 MB.
-- Esta solução é local e gratuita, adequada para MVP. Em produção, será necessário definir rotina de backup da pasta `server/uploads`.
+- Configure `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY` e `CLOUDINARY_API_SECRET` no `.env` local e nas variáveis da hospedagem.
 
-## Publicação com persistência
+## Publicacao
 
-Para publicar o projeto mantendo os dados:
+Para publicar o backend, configure as variaveis de ambiente na hospedagem.
 
-1. Configure `DATABASE_PATH` para uma pasta persistente do servidor.
-2. Mantenha essa pasta fora do build temporário da aplicação.
-3. Faça backup periódico do arquivo `.db`.
-4. Mantenha também `server/uploads` em armazenamento persistente, pois ali ficam imagens, logomarcas e documentos enviados pelo painel.
-
-Exemplo de `.env` em produção:
+Exemplo de variaveis em producao:
 
 ```env
-PORT=4000
-DATABASE_PATH=/var/www/asp/database/site.db
-JWT_SECRET=troque-por-uma-chave-forte
-ADMIN_EMAIL=admin@asp.org.br
-ADMIN_PASSWORD=uma-senha-forte
+MONGODB_URI=mongodb+srv://USUARIO:SENHA@cluster0.f2eoii1.mongodb.net/acao_social?retryWrites=true&w=majority&appName=Cluster0
+PORT=3000
+ADMIN_EMAIL=seu-email-admin
+ADMIN_PASSWORD=sua-senha-admin
+JWT_SECRET=uma-chave-grande-e-secreta
+CLOUDINARY_CLOUD_NAME=seu-cloud-name
+CLOUDINARY_API_KEY=sua-api-key
+CLOUDINARY_API_SECRET=seu-api-secret
 ```
 
-Em hospedagens com disco efêmero, use o volume persistente oferecido pela plataforma e aponte `DATABASE_PATH` para esse volume.
+O frontend deve apontar para a URL publica do backend usando `VITE_API_URL`.
 
 ## Endpoints principais
 
@@ -126,6 +138,8 @@ Em hospedagens com disco efêmero, use o volume persistente oferecido pela plata
 - `GET|POST /api/galeria`
 - `PUT|DELETE /api/galeria/:id`
 - `POST /api/auth/login`
+- `GET /`
+- `GET /health`
 
 ## Fora do escopo do MVP
 
@@ -139,4 +153,4 @@ As campanhas e metas servem para apresentação institucional e conversão para 
 - Publicação de relatórios reais em PDF.
 - Métricas consolidadas de famílias atendidas.
 - Área de relatos com autorização formal de uso de imagem e nome.
-- Deploy em servidor institucional e backups automáticos do SQLite.
+- Deploy em servidor institucional com variáveis de ambiente e rotina de backup dos uploads.

@@ -4,7 +4,7 @@ import { api, setAuthToken } from '../api';
 
 export default function AdminLogin() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ email: 'admin@asp.org.br', senha: 'admin123' });
+  const [form, setForm] = useState({ email: '', senha: '' });
   const [error, setError] = useState('');
 
   async function handleSubmit(event) {

@@ -1,9 +1,12 @@
 node_modules/
 dist/
 .env
+/.env
+server/.env
 *.db
 *.sqlite
 *.sqlite3
 npm-debug.log*
+dev-server.*.log
 server/uploads/*
 !server/uploads/.gitkeep
