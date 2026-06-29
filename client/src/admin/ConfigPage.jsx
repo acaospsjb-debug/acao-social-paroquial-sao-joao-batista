@@ -19,10 +19,11 @@ const pageFields = [
   ['doacao', 'Doação'],
   ['parceiros', 'Parceiros'],
   ['noticias', 'Notícias'],
-  ['contato', 'Contato']
+  ['contato', 'Contato'],
+  ['transparencia', 'Transparência']
 ];
 
-const defaultPages = Object.fromEntries(pageFields.map(([key]) => [key, 1]));
+const defaultPages = Object.fromEntries(pageFields.map(([key]) => [key, key === 'transparencia' ? 0 : 1]));
 
 export default function ConfigPage() {
   const [form, setForm] = useState({ paginas_visiveis: defaultPages });

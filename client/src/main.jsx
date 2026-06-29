@@ -11,6 +11,7 @@ import Doacao from './pages/Doacao';
 import Parceiros from './pages/Parceiros';
 import Noticias from './pages/Noticias';
 import Contato from './pages/Contato';
+import Transparencia from './pages/Transparencia';
 import AdminLogin from './admin/AdminLogin';
 import AdminLayout from './admin/AdminLayout';
 import Dashboard from './admin/Dashboard';
@@ -36,6 +37,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="/parceiros" element={<Parceiros />} />
           <Route path="/noticias-eventos" element={<Noticias />} />
           <Route path="/contato" element={<Contato />} />
+          <Route path="/transparencia" element={<Transparencia />} />
         </Route>
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route
