@@ -17,7 +17,8 @@ const {
   Parceiro,
   NoticiaEvento,
   DocumentoTransparencia,
-  Galeria
+  Galeria,
+  LinkExterno
 } = require('./models');
 
 const app = express();
@@ -63,7 +64,7 @@ app.get('/api/configuracoes', async (_req, res, next) => {
 
 app.put('/api/configuracoes', authRequired, async (req, res, next) => {
   try {
-    const fields = ['nome', 'texto_institucional', 'whatsapp', 'email', 'endereco', 'cnpj'];
+    const fields = ['nome', 'texto_institucional', 'whatsapp', 'email', 'endereco', 'cnpj', 'hero_video_url', 'hero_video_poster_url', 'paginas_visiveis'];
     if (!req.body.nome) return res.status(400).json({ message: 'Nome da ONG é obrigatório.' });
     const payload = fields.reduce((data, field) => {
       data[field] = req.body[field] ?? '';
@@ -83,15 +84,16 @@ registerCrudRoutes(app);
 
 app.get('/api/admin/dashboard', authRequired, async (_req, res, next) => {
   try {
-    const [projetos, campanhas, parceiros, noticias, documentos, galeria] = await Promise.all([
+    const [projetos, campanhas, parceiros, noticias, documentos, galeria, linksExternos] = await Promise.all([
       Projeto.countDocuments(),
       Campanha.countDocuments(),
       Parceiro.countDocuments(),
       NoticiaEvento.countDocuments(),
       DocumentoTransparencia.countDocuments(),
-      Galeria.countDocuments()
+      Galeria.countDocuments(),
+      LinkExterno.countDocuments()
     ]);
-    res.json({ projetos, campanhas, parceiros, noticiasEventos: noticias, documentos, galeria });
+    res.json({ projetos, campanhas, parceiros, noticiasEventos: noticias, documentos, galeria, linksExternos });
   } catch (error) {
     next(error);
   }
@@ -99,16 +101,16 @@ app.get('/api/admin/dashboard', authRequired, async (_req, res, next) => {
 
 app.get('/api/site/resumo', async (_req, res, next) => {
   try {
-    const [configuracoes, projetos, campanhas, parceiros, noticiasEventos, documentos, galeria] = await Promise.all([
+    const [configuracoes, projetos, parceiros, noticiasEventos, documentos, galeria, linksExternos] = await Promise.all([
       Configuracao.findOne(),
       Projeto.find({ ativo: 1 }).sort({ destaque: -1, criado_em: -1 }),
-      Campanha.find({ ativo: 1 }).sort({ criado_em: -1 }),
       Parceiro.find({ ativo: 1 }).sort({ criado_em: -1 }),
       NoticiaEvento.find({ ativo: 1 }).sort({ data_evento: -1, criado_em: -1 }),
       DocumentoTransparencia.find().sort({ criado_em: -1 }),
-      Galeria.find().sort({ criado_em: -1 })
+      Galeria.find().sort({ criado_em: -1 }),
+      LinkExterno.find({ ativo: 1 }).sort({ criado_em: -1 })
     ]);
-    res.json({ configuracoes, projetos, campanhas, parceiros, noticiasEventos, documentos, galeria });
+    res.json({ configuracoes, projetos, parceiros, noticiasEventos, documentos, galeria, linksExternos });
   } catch (error) {
     next(error);
   }

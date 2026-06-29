@@ -18,6 +18,14 @@ export function whatsappLink(number, text = 'Olá! Gostaria de saber como apoiar
   return `https://wa.me/${clean || '5547999999999'}?text=${encodeURIComponent(text)}`;
 }
 
+export function findExternalLink(links = [], plataforma) {
+  return links.find((link) => String(link.plataforma || '').toLowerCase() === String(plataforma || '').toLowerCase() && Number(link.ativo));
+}
+
+export function externalHref(link, fallback = '#') {
+  return link?.url || fallback;
+}
+
 export async function api(path, options = {}) {
   const response = await fetch(`${API_URL}${path}`, {
     ...options,

@@ -11,7 +11,7 @@ export default function Dashboard() {
   const cards = [
     ['Fotos Santa Dulce', data?.galeria],
     ['Projetos', data?.projetos],
-    ['Campanhas', data?.campanhas],
+    ['Links externos', data?.linksExternos],
     ['Documentos', data?.documentos],
     ['Parceiros', data?.parceiros],
     ['Notícias/eventos', data?.noticiasEventos]

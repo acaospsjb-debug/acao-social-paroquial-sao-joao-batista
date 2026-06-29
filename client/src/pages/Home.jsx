@@ -2,19 +2,21 @@ import { Link, useOutletContext } from 'react-router-dom';
 import DataCard from '../components/DataCard';
 import SectionHeader from '../components/SectionHeader';
 import useSiteData from './useSiteData';
-import { whatsappLink } from '../api';
+import { externalHref, findExternalLink, whatsappLink } from '../api';
+
+const fallbackHero = 'https://images.unsplash.com/photo-1559027615-cd4628902d4a?auto=format&fit=crop&w=1400&q=80';
 
 export default function Home() {
-  const { config } = useOutletContext();
+  const { config, linksExternos = [], visiblePages = {} } = useOutletContext();
   const data = useSiteData();
   const projetos = data.projetos || [];
-  const campanhas = data.campanhas || [];
   const parceiros = data.parceiros || [];
+  const whatsapp = findExternalLink(linksExternos, 'WhatsApp');
 
   return (
     <>
       <section className="bg-asp-soft">
-        <div className="section grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="section grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
           <div>
             <p className="mb-4 font-bold uppercase tracking-wide text-asp-green">Projeto Santa Dulce dos Pobres</p>
             <h1 className="text-4xl font-bold leading-tight text-asp-ink md:text-6xl">
@@ -24,15 +26,11 @@ export default function Home() {
               A Ação Social Paroquial São João Batista atua há 49 anos em Itajaí/SC, acolhendo famílias em vulnerabilidade social com presença, cuidado e responsabilidade.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <a className="btn-primary" href={whatsappLink(config?.whatsapp)} target="_blank" rel="noreferrer">Falar pelo WhatsApp</a>
-              <Link className="btn-secondary" to="/projeto-santa-dulce">Conhecer o projeto</Link>
+              <a className="btn-primary" href={externalHref(whatsapp, whatsappLink(config?.whatsapp))} target="_blank" rel="noopener noreferrer">Falar pelo WhatsApp</a>
+              {visiblePages.santa_dulce && <Link className="btn-secondary" to="/projeto-santa-dulce">Conhecer o projeto</Link>}
             </div>
           </div>
-          <img
-            className="h-[420px] w-full rounded-lg object-cover shadow-soft"
-            src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?auto=format&fit=crop&w=1400&q=80"
-            alt="Voluntários em ação social"
-          />
+          <HeroMedia videoUrl={config?.hero_video_url} posterUrl={config?.hero_video_poster_url} />
         </div>
       </section>
 
@@ -56,14 +54,6 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section">
-        <SectionHeader eyebrow="Campanhas" title="Metas que aproximam quem pode ajudar de quem precisa" />
-        <p className="-mt-5 mb-6 max-w-3xl leading-7 text-slate-600">As campanhas são apresentadas para orientação e contato. Este MVP não possui pagamento, checkout ou recebimento de doações pelo site.</p>
-        <div className="grid gap-6 md:grid-cols-3">
-          {campanhas.slice(0, 3).map((item) => <DataCard key={item.id} item={item} type="campanha" />)}
-        </div>
-      </section>
-
       <section className="bg-asp-soft">
         <div className="section">
           <SectionHeader eyebrow="Parceiros" title="Uma rede de confiança sustenta esta missão" />
@@ -77,13 +67,65 @@ export default function Home() {
           </div>
           <div className="mt-10 rounded-lg bg-asp-ink p-8 text-white">
             <h2 className="text-2xl font-bold">Sua empresa também pode apoiar esta causa.</h2>
-            <p className="mt-3 text-slate-200">Entre em contato para conhecer campanhas, necessidades atuais e formas responsáveis de apoio.</p>
-            <a className="btn-primary mt-6" href={whatsappLink(config?.whatsapp)} target="_blank" rel="noreferrer">Quero conversar com a ONG</a>
+            <p className="mt-3 text-slate-200">Entre em contato para conhecer projetos, necessidades atuais e formas responsáveis de apoio.</p>
+            <a className="btn-primary mt-6" href={externalHref(whatsapp, whatsappLink(config?.whatsapp))} target="_blank" rel="noopener noreferrer">Quero conversar com a ONG</a>
           </div>
         </div>
       </section>
     </>
   );
+}
+
+function HeroMedia({ videoUrl, posterUrl }) {
+  const embed = buildEmbedUrl(videoUrl);
+  const isMp4 = /\.mp4($|\?)/i.test(videoUrl || '');
+
+  if (embed) {
+    return (
+      <div className="overflow-hidden rounded-lg border border-white/80 bg-white shadow-soft">
+        <iframe
+          className="aspect-video w-full"
+          src={embed}
+          title="Vídeo institucional da Ação Social Paroquial São João Batista"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+          loading="lazy"
+        />
+      </div>
+    );
+  }
+
+  if (isMp4) {
+    return (
+      <video className="aspect-video w-full rounded-lg bg-asp-ink object-cover shadow-soft" src={videoUrl} poster={posterUrl || fallbackHero} controls playsInline preload="metadata">
+        Seu navegador não suporta vídeo HTML5.
+      </video>
+    );
+  }
+
+  return <img className="h-[420px] w-full rounded-lg object-cover shadow-soft" src={posterUrl || fallbackHero} alt="Voluntários em ação social" />;
+}
+
+function buildEmbedUrl(url) {
+  if (!url) return '';
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname.includes('youtube.com')) {
+      const id = parsed.searchParams.get('v') || parsed.pathname.split('/').filter(Boolean).pop();
+      return id ? `https://www.youtube.com/embed/${id}` : '';
+    }
+    if (parsed.hostname.includes('youtu.be')) {
+      const id = parsed.pathname.split('/').filter(Boolean)[0];
+      return id ? `https://www.youtube.com/embed/${id}` : '';
+    }
+    if (parsed.hostname.includes('vimeo.com')) {
+      const id = parsed.pathname.split('/').filter(Boolean).pop();
+      return id ? `https://player.vimeo.com/video/${id}` : '';
+    }
+  } catch (_error) {
+    return '';
+  }
+  return '';
 }
 
 function Metric({ value, label }) {

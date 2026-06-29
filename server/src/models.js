@@ -25,7 +25,23 @@ const Configuracao = mongoose.model('ConfiguracaoOng', new mongoose.Schema({
   whatsapp: { type: String, default: '' },
   email: { type: String, default: '' },
   endereco: { type: String, default: '' },
-  cnpj: { type: String, default: '' }
+  cnpj: { type: String, default: '' },
+  hero_video_url: { type: String, default: '' },
+  hero_video_poster_url: { type: String, default: '' },
+  paginas_visiveis: {
+    type: Map,
+    of: Number,
+    default: () => ({
+      inicio: 1,
+      sobre: 1,
+      santa_dulce: 1,
+      projetos: 1,
+      transparencia: 1,
+      parceiros: 1,
+      noticias: 1,
+      contato: 1
+    })
+  }
 }, { ...baseOptions, collection: 'configuracoes_ong' }));
 
 const Projeto = mongoose.model('Projeto', new mongoose.Schema({
@@ -76,6 +92,14 @@ const Galeria = mongoose.model('Galeria', new mongoose.Schema({
   categoria: { type: String, default: 'Ações' }
 }, { ...baseOptions, collection: 'galeria' }));
 
+const LinkExterno = mongoose.model('LinkExterno', new mongoose.Schema({
+  nome: { type: String, required: true },
+  url: { type: String, required: true },
+  plataforma: { type: String, default: 'Site externo' },
+  ativo: { type: Number, default: 1 },
+  nova_aba: { type: Number, default: 1 }
+}, { ...baseOptions, collection: 'links_externos' }));
+
 module.exports = {
   User,
   Configuracao,
@@ -84,5 +108,6 @@ module.exports = {
   Parceiro,
   NoticiaEvento,
   DocumentoTransparencia,
-  Galeria
+  Galeria,
+  LinkExterno
 };

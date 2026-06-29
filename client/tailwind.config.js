@@ -4,15 +4,16 @@ export default {
     extend: {
       colors: {
         asp: {
-          green: '#4f8f7b',
-          blue: '#5e9ab8',
-          warm: '#d9824b',
-          ink: '#243235',
-          soft: '#f3f8f6'
+          green: '#238768',
+          blue: '#4c9ccf',
+          warm: '#e86f45',
+          yellow: '#f4c84f',
+          ink: '#203436',
+          soft: '#eefaf3'
         }
       },
       boxShadow: {
-        soft: '0 18px 45px rgba(36, 50, 53, 0.10)'
+        soft: '0 18px 45px rgba(32, 52, 54, 0.12)'
       }
     }
   },

@@ -6,7 +6,8 @@ const {
   Parceiro,
   NoticiaEvento,
   DocumentoTransparencia,
-  Galeria
+  Galeria,
+  LinkExterno
 } = require('./models');
 
 const tables = {
@@ -39,6 +40,12 @@ const tables = {
     model: Galeria,
     fields: ['titulo', 'descricao', 'imagem_url', 'categoria'],
     required: ['titulo', 'imagem_url']
+  },
+  'links-externos': {
+    model: LinkExterno,
+    fields: ['nome', 'url', 'plataforma', 'ativo', 'nova_aba'],
+    required: ['nome', 'url'],
+    urlFields: ['url']
   }
 };
 
@@ -51,6 +58,19 @@ function sanitizeBody(body, fields) {
 
 function validate(data, required) {
   return required.filter((field) => !String(data[field] || '').trim());
+}
+
+function hasInvalidUrl(data, fields = []) {
+  return fields.some((field) => {
+    const value = String(data[field] || '').trim();
+    if (!value) return false;
+    try {
+      const url = new URL(value);
+      return !['http:', 'https:'].includes(url.protocol);
+    } catch (_error) {
+      return true;
+    }
+  });
 }
 
 function registerCrudRoutes(app) {
@@ -71,6 +91,7 @@ function registerCrudRoutes(app) {
         const data = sanitizeBody(req.body, config.fields);
         const missing = validate(data, config.required);
         if (missing.length) return res.status(400).json({ message: `Campos obrigatórios: ${missing.join(', ')}` });
+        if (hasInvalidUrl(data, config.urlFields)) return res.status(400).json({ message: 'Informe uma URL válida começando com http:// ou https://.' });
 
         const created = await config.model.create(data);
         return res.status(201).json(created);
@@ -84,6 +105,7 @@ function registerCrudRoutes(app) {
         const data = sanitizeBody(req.body, config.fields);
         const missing = validate(data, config.required);
         if (missing.length) return res.status(400).json({ message: `Campos obrigatórios: ${missing.join(', ')}` });
+        if (hasInvalidUrl(data, config.urlFields)) return res.status(400).json({ message: 'Informe uma URL válida começando com http:// ou https://.' });
 
         const updated = await config.model.findByIdAndUpdate(req.params.id, data, { new: true, runValidators: true });
         if (!updated) return res.status(404).json({ message: 'Registro não encontrado.' });
