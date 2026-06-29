@@ -6,7 +6,7 @@ O sistema funciona como carta de apresentação digital da ONG, com foco em divu
 
 ## Sistema em produção
 
-- **Site:** https://acao-social-paroquial-sao-joao-bati.vercel.app
+- **Site:** https://acaosocialsjb.vercel.app *(URL curta — ver configuração na Vercel)*
 - **API:** https://asp-sjb-api.onrender.com
 
 > O servidor gratuito do Render pode demorar até 1 minuto para responder após um período sem uso. Aguarde e tente novamente.
