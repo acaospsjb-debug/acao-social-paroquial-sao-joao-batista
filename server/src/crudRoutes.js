@@ -6,7 +6,8 @@ const {
   Parceiro,
   NoticiaEvento,
   Galeria,
-  LinkExterno
+  LinkExterno,
+  Documento
 } = require('./models');
 
 const tables = {
@@ -40,6 +41,11 @@ const tables = {
     fields: ['nome', 'url', 'plataforma', 'ativo', 'nova_aba'],
     required: ['nome', 'url'],
     urlFields: ['url']
+  },
+  documentos: {
+    model: Documento,
+    fields: ['titulo', 'descricao', 'arquivo_url', 'ativo'],
+    required: ['titulo']
   }
 };
 

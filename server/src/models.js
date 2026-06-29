@@ -93,6 +93,13 @@ const LinkExterno = mongoose.model('LinkExterno', new mongoose.Schema({
   nova_aba: { type: Number, default: 1 }
 }, { ...baseOptions, collection: 'links_externos' }));
 
+const Documento = mongoose.model('Documento', new mongoose.Schema({
+  titulo: { type: String, required: true },
+  descricao: { type: String, default: '' },
+  arquivo_url: { type: String, default: '' },
+  ativo: { type: Number, default: 1 }
+}, { ...baseOptions, collection: 'documentos' }));
+
 module.exports = {
   User,
   Configuracao,
@@ -101,5 +108,6 @@ module.exports = {
   Parceiro,
   NoticiaEvento,
   Galeria,
-  LinkExterno
+  LinkExterno,
+  Documento
 };

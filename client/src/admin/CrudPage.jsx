@@ -37,6 +37,12 @@ const configs = {
     ['plataforma', 'Tipo/plataforma', 'select', 'Escolha o canal correspondente.'],
     ['ativo', 'Link ativo', 'checkbox'],
     ['nova_aba', 'Abrir em nova aba', 'checkbox']
+  ],
+  documentos: [
+    ['titulo', 'Título do documento'],
+    ['descricao', 'Descrição', 'textarea'],
+    ['arquivo_url', 'Arquivo', 'upload', 'Envie um PDF, Word ou imagem. O link gerado será exibido na página de Transparência.'],
+    ['ativo', 'Publicar no site', 'checkbox']
   ]
 };
 
@@ -47,7 +53,8 @@ const descriptions = {
   parceiros: 'Altera os parceiros, apoiadores e logomarcas exibidos na página Parceiros e na página inicial.',
   'noticias-eventos': 'Altera notícias, eventos e comunicados exibidos na página Notícias.',
   galeria: 'Altera as fotos exibidas na página Projeto Santa Dulce dos Pobres.',
-  'links-externos': 'Centraliza Instagram, Facebook, WhatsApp, YouTube, doação e outros links usados no site.'
+  'links-externos': 'Centraliza Instagram, Facebook, WhatsApp, YouTube, doação e outros links usados no site.',
+  documentos: 'Altera os documentos exibidos na página de Transparência (estatuto, relatórios, atas, etc.).'
 };
 
 export default function CrudPage({ resource, title }) {
@@ -316,7 +323,7 @@ function ItemPreview({ item, resource }) {
 }
 
 function previewLabel(resource) {
-  const labels = { projetos: 'Projeto', parceiros: 'Parceiro', 'noticias-eventos': 'Notícia', galeria: 'Foto', 'links-externos': 'Link' };
+  const labels = { projetos: 'Projeto', parceiros: 'Parceiro', 'noticias-eventos': 'Notícia', galeria: 'Foto', 'links-externos': 'Link', documentos: 'Documento' };
   return labels[resource] || 'Item';
 }
 
@@ -367,7 +374,7 @@ function Field({ id, field, label, type, value, uploading, onChange, onUpload })
           id={id}
           className="form-input text-sm file:mr-3 file:rounded-full file:border-0 file:bg-asp-sky file:px-3 file:py-1 file:text-xs file:font-semibold file:text-asp-blue"
           type="file"
-          accept={field === 'link_url' ? '.pdf,.doc,.docx,image/*' : 'image/*'}
+          accept={field === 'arquivo_url' || field === 'link_url' ? '.pdf,.doc,.docx,image/*' : 'image/*'}
           onChange={(e) => onUpload(field, e.target.files?.[0])}
         />
         {uploading && (
@@ -380,10 +387,10 @@ function Field({ id, field, label, type, value, uploading, onChange, onUpload })
           value={value || ''}
           onChange={(e) => onChange(e.target.value)}
         />
-        {value && field !== 'link_url' && (
+        {value && field !== 'link_url' && field !== 'arquivo_url' && (
           <img src={value} alt="Prévia" className="h-28 w-28 rounded-xl border border-asp-border object-cover" />
         )}
-        {value && field === 'link_url' && (
+        {value && (field === 'link_url' || field === 'arquivo_url') && (
           <a className="text-sm font-semibold text-asp-blue hover:text-asp-blue-dark" href={value} target="_blank" rel="noreferrer">
             Abrir documento →
           </a>

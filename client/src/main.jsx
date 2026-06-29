@@ -55,6 +55,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="parceiros" element={<CrudPage resource="parceiros" title="Parceiros" />} />
           <Route path="noticias-eventos" element={<CrudPage resource="noticias-eventos" title="Notícias e eventos" />} />
           <Route path="galeria" element={<CrudPage resource="galeria" title="Fotos Santa Dulce e galeria" />} />
+          <Route path="documentos" element={<CrudPage resource="documentos" title="Documentos" />} />
         </Route>
       </Routes>
     </BrowserRouter>
