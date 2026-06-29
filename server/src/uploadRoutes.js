@@ -1,7 +1,6 @@
-const express = require('express');
 const multer = require('multer');
-const { v2: cloudinary } = require('cloudinary');
 const { authRequired } = require('./auth');
+const mongoose = require('mongoose');
 
 const allowedMimeTypes = new Set([
   'image/jpeg',
@@ -15,7 +14,7 @@ const allowedMimeTypes = new Set([
 
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 },
+  limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (_req, file, callback) => {
     if (!allowedMimeTypes.has(file.mimetype)) {
       return callback(new Error('Tipo de arquivo não permitido. Use imagem, PDF ou documento Word.'));
@@ -24,65 +23,63 @@ const upload = multer({
   }
 });
 
-function configureCloudinary() {
-  const { CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET } = process.env;
+const uploadSchema = new mongoose.Schema({
+  originalName: String,
+  mimeType: String,
+  data: String,
+  criado_em: { type: Date, default: Date.now }
+});
 
-  if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_API_KEY || !CLOUDINARY_API_SECRET) {
-    throw new Error('Configure CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY e CLOUDINARY_API_SECRET no .env.');
-  }
-
-  cloudinary.config({
-    cloud_name: CLOUDINARY_CLOUD_NAME,
-    api_key: CLOUDINARY_API_KEY,
-    api_secret: CLOUDINARY_API_SECRET
-  });
-}
-
-function uploadToCloudinary(file) {
-  configureCloudinary();
-
-  const resourceType = file.mimetype.startsWith('image/') ? 'image' : 'raw';
-
-  return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      {
-        folder: 'acao-social-sao-joao-batista',
-        resource_type: resourceType,
-        use_filename: true,
-        unique_filename: true
-      },
-      (error, result) => {
-        if (error) return reject(error);
-        return resolve(result);
-      }
-    );
-
-    stream.end(file.buffer);
-  });
-}
+const Upload = mongoose.models.Upload || mongoose.model('Upload', uploadSchema);
 
 function registerUploadRoutes(app) {
   app.post('/api/upload', authRequired, (req, res, next) => {
     upload.single('arquivo')(req, res, async (error) => {
       if (error) {
         const message = error.code === 'LIMIT_FILE_SIZE'
-          ? 'Arquivo muito grande. O limite é de 10 MB.'
+          ? 'Arquivo muito grande. O limite é de 5 MB.'
           : error.message;
         return res.status(400).json({ message });
       }
       if (!req.file) return res.status(400).json({ message: 'Nenhum arquivo enviado.' });
 
       try {
-        const result = await uploadToCloudinary(req.file);
-        return res.status(201).json({
-          fileName: result.public_id,
+        const base64 = req.file.buffer.toString('base64');
+        const dataUrl = `data:${req.file.mimetype};base64,${base64}`;
+
+        const doc = await Upload.create({
           originalName: req.file.originalname,
-          url: result.secure_url
+          mimeType: req.file.mimetype,
+          data: dataUrl
+        });
+
+        return res.status(201).json({
+          fileName: doc._id.toString(),
+          originalName: req.file.originalname,
+          url: `/api/uploads/${doc._id}`
         });
       } catch (uploadError) {
         return next(uploadError);
       }
     });
+  });
+
+  app.get('/api/uploads/:id', async (req, res, next) => {
+    try {
+      const doc = await Upload.findById(req.params.id);
+      if (!doc) return res.status(404).json({ message: 'Arquivo não encontrado.' });
+
+      const [header, base64Data] = doc.data.split(',');
+      const mimeMatch = header.match(/data:([^;]+)/);
+      const mimeType = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
+      const buffer = Buffer.from(base64Data, 'base64');
+
+      res.set('Content-Type', mimeType);
+      res.set('Cache-Control', 'public, max-age=31536000');
+      return res.send(buffer);
+    } catch (err) {
+      return next(err);
+    }
   });
 }
 

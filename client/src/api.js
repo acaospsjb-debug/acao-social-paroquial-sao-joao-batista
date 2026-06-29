@@ -61,5 +61,8 @@ export async function uploadFile(file) {
 
   const data = await response.json().catch(() => null);
   if (!response.ok) throw new Error(data?.message || 'Erro ao enviar arquivo.');
+  if (data?.url && data.url.startsWith('/')) {
+    data.url = `${API_URL}${data.url}`;
+  }
   return data;
 }
