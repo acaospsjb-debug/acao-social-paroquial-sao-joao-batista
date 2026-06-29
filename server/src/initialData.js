@@ -6,9 +6,11 @@ const {
   Campanha,
   Parceiro,
   NoticiaEvento,
-  DocumentoTransparencia,
-  Galeria
+  Galeria,
+  LinkExterno
 } = require('./models');
+
+const DONATION_URL = 'https://acaosocialparoquialsjb.doardigital.com.br/doacao';
 
 async function ensureInitialData() {
   await ensureAdmin();
@@ -17,8 +19,8 @@ async function ensureInitialData() {
   await seedIfEmpty(Campanha, campaignRows);
   await seedIfEmpty(Parceiro, partnerRows);
   await seedIfEmpty(NoticiaEvento, newsRows);
-  await seedIfEmpty(DocumentoTransparencia, documentRows);
   await seedIfEmpty(Galeria, galleryRows);
+  await ensureDonationLink();
   await updateSeededPublicText();
 }
 
@@ -61,7 +63,7 @@ async function ensureConfig() {
 
   await Configuracao.create({
     nome: 'Ação Social Paroquial São João Batista',
-    texto_institucional: 'Há 49 anos em Itajaí/SC, a Ação Social Paroquial São João Batista acolhe famílias em situação de vulnerabilidade social com escuta, apoio e projetos que fortalecem vínculos comunitários.',
+    texto_institucional: 'Há 49 anos em Itajaí/SC, a Ação Social Paroquial São João Batista mantém ações de cuidado com crianças, apoio às famílias e mobilização comunitária por meio do Projeto Santa Dulce, bazares, campanhas e parcerias locais.',
     whatsapp: '5547999999999',
     email: 'contato@acaosocialsaojoao.org.br',
     endereco: 'Itajaí/SC - endereço institucional a confirmar',
@@ -78,7 +80,7 @@ function defaultVisiblePages() {
     sobre: 1,
     santa_dulce: 1,
     projetos: 1,
-    transparencia: 1,
+    doacao: 1,
     parceiros: 1,
     noticias: 1,
     contato: 1
@@ -91,7 +93,23 @@ async function seedIfEmpty(Model, rows) {
   await Model.insertMany(rows);
 }
 
+async function ensureDonationLink() {
+  const existing = await LinkExterno.findOne({ plataforma: 'Doação' });
+  if (existing) return;
+  await LinkExterno.create({
+    nome: 'Doação online',
+    url: DONATION_URL,
+    plataforma: 'Doação',
+    ativo: 1,
+    nova_aba: 1
+  });
+}
+
 async function updateSeededPublicText() {
+  await Configuracao.updateOne(
+    { texto_institucional: 'Há 49 anos em Itajaí/SC, a Ação Social Paroquial São João Batista acolhe famílias em situação de vulnerabilidade social com escuta, apoio e projetos que fortalecem vínculos comunitários.' },
+    { texto_institucional: 'Há 49 anos em Itajaí/SC, a Ação Social Paroquial São João Batista mantém ações de cuidado com crianças, apoio às famílias e mobilização comunitária por meio do Projeto Santa Dulce, bazares, campanhas e parcerias locais.' }
+  );
   await Projeto.updateOne({ titulo: 'Campanhas de Cestas Básicas' }, { titulo: 'Apoio com Cestas Básicas' });
   await Projeto.updateOne({ titulo: 'Campanhas de Fraldas e Enxovais' }, { titulo: 'Apoio com Fraldas e Enxovais' });
   await Parceiro.updateOne(
@@ -127,13 +145,6 @@ const newsRows = [
   { titulo: 'Bazares Solidários', resumo: 'Eventos comunitários para arrecadar recursos e aproximar apoiadores da causa.', conteudo: 'Os bazares solidários são oportunidades de participação da comunidade e apoio direto às ações sociais.', data_evento: '2026-06-15', imagem_url: 'https://images.unsplash.com/photo-1470309864661-68328b2cd0a5?auto=format&fit=crop&w=1200&q=80', ativo: 1 },
   { titulo: 'Café Colonial Temático', resumo: 'Encontro beneficente para fortalecer os projetos da instituição.', conteudo: 'Evento pensado para reunir famílias, apoiadores e empresas parceiras em torno da solidariedade.', data_evento: '2026-07-20', imagem_url: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1200&q=80', ativo: 1 },
   { titulo: 'Festa das Crianças e Natal', resumo: 'Ações especiais para celebrar datas importantes com crianças e famílias atendidas.', conteudo: 'Iniciativas sazonais com arrecadação de brinquedos, alimentos e itens de apoio.', data_evento: '2026-10-12', imagem_url: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=1200&q=80', ativo: 1 }
-];
-
-const documentRows = [
-  { nome: 'CNPJ', descricao: 'Comprovante de inscrição cadastral da instituição.', link_url: '#', tipo: 'Cadastro' },
-  { nome: 'Estatuto Social', descricao: 'Documento estatutário da Ação Social Paroquial São João Batista.', link_url: '#', tipo: 'Estatuto' },
-  { nome: 'Prestação de contas', descricao: 'Área preparada para relatórios institucionais e demonstrativos publicados pela ONG.', link_url: '#', tipo: 'Prestação de contas' },
-  { nome: 'Relatório bimestral de ações', descricao: 'Modelo de listagem para relatórios periódicos das atividades.', link_url: '#', tipo: 'Relatório' }
 ];
 
 const galleryRows = [

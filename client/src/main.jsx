@@ -7,7 +7,7 @@ import Home from './pages/Home';
 import Sobre from './pages/Sobre';
 import SantaDulce from './pages/SantaDulce';
 import Projetos from './pages/Projetos';
-import Transparencia from './pages/Transparencia';
+import Doacao from './pages/Doacao';
 import Parceiros from './pages/Parceiros';
 import Noticias from './pages/Noticias';
 import Contato from './pages/Contato';
@@ -31,8 +31,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="/sobre" element={<Sobre />} />
           <Route path="/projeto-santa-dulce" element={<SantaDulce />} />
           <Route path="/projetos" element={<Projetos />} />
+          <Route path="/doacao" element={<Doacao />} />
           <Route path="/campanhas" element={<Navigate to="/" replace />} />
-          <Route path="/transparencia" element={<Transparencia />} />
           <Route path="/parceiros" element={<Parceiros />} />
           <Route path="/noticias-eventos" element={<Noticias />} />
           <Route path="/contato" element={<Contato />} />
@@ -52,7 +52,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="projetos" element={<CrudPage resource="projetos" title="Projetos" />} />
           <Route path="parceiros" element={<CrudPage resource="parceiros" title="Parceiros" />} />
           <Route path="noticias-eventos" element={<CrudPage resource="noticias-eventos" title="Notícias e eventos" />} />
-          <Route path="documentos" element={<CrudPage resource="documentos" title="Documentos de transparência" />} />
           <Route path="galeria" element={<CrudPage resource="galeria" title="Fotos Santa Dulce e galeria" />} />
         </Route>
       </Routes>

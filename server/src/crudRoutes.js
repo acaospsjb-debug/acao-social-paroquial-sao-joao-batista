@@ -5,7 +5,6 @@ const {
   Campanha,
   Parceiro,
   NoticiaEvento,
-  DocumentoTransparencia,
   Galeria,
   LinkExterno
 } = require('./models');
@@ -30,11 +29,6 @@ const tables = {
     model: NoticiaEvento,
     fields: ['titulo', 'resumo', 'conteudo', 'data_evento', 'imagem_url', 'ativo'],
     required: ['titulo', 'resumo']
-  },
-  documentos: {
-    model: DocumentoTransparencia,
-    fields: ['nome', 'descricao', 'link_url', 'tipo'],
-    required: ['nome', 'link_url']
   },
   galeria: {
     model: Galeria,

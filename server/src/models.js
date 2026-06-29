@@ -36,7 +36,7 @@ const Configuracao = mongoose.model('ConfiguracaoOng', new mongoose.Schema({
       sobre: 1,
       santa_dulce: 1,
       projetos: 1,
-      transparencia: 1,
+      doacao: 1,
       parceiros: 1,
       noticias: 1,
       contato: 1
@@ -78,13 +78,6 @@ const NoticiaEvento = mongoose.model('NoticiaEvento', new mongoose.Schema({
   ativo: { type: Number, default: 1 }
 }, { ...baseOptions, collection: 'noticias_eventos' }));
 
-const DocumentoTransparencia = mongoose.model('DocumentoTransparencia', new mongoose.Schema({
-  nome: { type: String, required: true },
-  descricao: { type: String, default: '' },
-  link_url: { type: String, required: true },
-  tipo: { type: String, default: 'Documento' }
-}, { ...baseOptions, collection: 'documentos_transparencia' }));
-
 const Galeria = mongoose.model('Galeria', new mongoose.Schema({
   titulo: { type: String, required: true },
   descricao: { type: String, default: '' },
@@ -107,7 +100,6 @@ module.exports = {
   Campanha,
   Parceiro,
   NoticiaEvento,
-  DocumentoTransparencia,
   Galeria,
   LinkExterno
 };

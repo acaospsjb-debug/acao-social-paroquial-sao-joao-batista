@@ -3,7 +3,7 @@ export const publicPages = [
   { key: 'sobre', path: '/sobre', label: 'Sobre' },
   { key: 'santa_dulce', path: '/projeto-santa-dulce', label: 'Santa Dulce' },
   { key: 'projetos', path: '/projetos', label: 'Projetos' },
-  { key: 'transparencia', path: '/transparencia', label: 'Transparência' },
+  { key: 'doacao', path: '/doacao', label: 'Doação' },
   { key: 'parceiros', path: '/parceiros', label: 'Parceiros' },
   { key: 'noticias', path: '/noticias-eventos', label: 'Notícias' },
   { key: 'contato', path: '/contato', label: 'Contato' }

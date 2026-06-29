@@ -1,4 +1,5 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+export const DONATION_URL = 'https://acaosocialparoquialsjb.doardigital.com.br/doacao';
 let authToken = '';
 
 export function setAuthToken(token) {
@@ -24,6 +25,11 @@ export function findExternalLink(links = [], plataforma) {
 
 export function externalHref(link, fallback = '#') {
   return link?.url || fallback;
+}
+
+export function hasValidCnpj(value) {
+  const digits = String(value || '').replace(/\D/g, '');
+  return digits.length === 14 && !/^0+$/.test(digits);
 }
 
 export async function api(path, options = {}) {

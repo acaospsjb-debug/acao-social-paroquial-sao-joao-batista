@@ -16,7 +16,6 @@ const {
   Campanha,
   Parceiro,
   NoticiaEvento,
-  DocumentoTransparencia,
   Galeria,
   LinkExterno
 } = require('./models');
@@ -24,7 +23,21 @@ const {
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(cors());
+const allowedOrigins = (process.env.CORS_ORIGINS || '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
 app.use(express.json({ limit: '1mb' }));
 registerUploadRoutes(app);
 
@@ -84,16 +97,15 @@ registerCrudRoutes(app);
 
 app.get('/api/admin/dashboard', authRequired, async (_req, res, next) => {
   try {
-    const [projetos, campanhas, parceiros, noticias, documentos, galeria, linksExternos] = await Promise.all([
+    const [projetos, campanhas, parceiros, noticias, galeria, linksExternos] = await Promise.all([
       Projeto.countDocuments(),
       Campanha.countDocuments(),
       Parceiro.countDocuments(),
       NoticiaEvento.countDocuments(),
-      DocumentoTransparencia.countDocuments(),
       Galeria.countDocuments(),
       LinkExterno.countDocuments()
     ]);
-    res.json({ projetos, campanhas, parceiros, noticiasEventos: noticias, documentos, galeria, linksExternos });
+    res.json({ projetos, campanhas, parceiros, noticiasEventos: noticias, galeria, linksExternos });
   } catch (error) {
     next(error);
   }
@@ -101,16 +113,15 @@ app.get('/api/admin/dashboard', authRequired, async (_req, res, next) => {
 
 app.get('/api/site/resumo', async (_req, res, next) => {
   try {
-    const [configuracoes, projetos, parceiros, noticiasEventos, documentos, galeria, linksExternos] = await Promise.all([
+    const [configuracoes, projetos, parceiros, noticiasEventos, galeria, linksExternos] = await Promise.all([
       Configuracao.findOne(),
       Projeto.find({ ativo: 1 }).sort({ destaque: -1, criado_em: -1 }),
       Parceiro.find({ ativo: 1 }).sort({ criado_em: -1 }),
       NoticiaEvento.find({ ativo: 1 }).sort({ data_evento: -1, criado_em: -1 }),
-      DocumentoTransparencia.find().sort({ criado_em: -1 }),
       Galeria.find().sort({ criado_em: -1 }),
       LinkExterno.find({ ativo: 1 }).sort({ criado_em: -1 })
     ]);
-    res.json({ configuracoes, projetos, parceiros, noticiasEventos, documentos, galeria, linksExternos });
+    res.json({ configuracoes, projetos, parceiros, noticiasEventos, galeria, linksExternos });
   } catch (error) {
     next(error);
   }
