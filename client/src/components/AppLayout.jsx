@@ -188,8 +188,8 @@ export default function AppLayout() {
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    aria-label={`${link.plataforma} da Ação Social Paroquial São João Batista`}
-                    title={link.plataforma}
+                    aria-label={`${link.nome} da Ação Social Paroquial São João Batista`}
+                    title={link.nome}
                     className="flex h-10 w-10 items-center justify-center rounded-full border border-white/30 text-white transition hover:bg-white/20 hover:border-white/60"
                   >
                     {SOCIAL_ICONS[link.plataforma] || (
