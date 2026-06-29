@@ -1,6 +1,15 @@
-# MVP - Ação Social Paroquial São João Batista
+# Site Institucional — Ação Social Paroquial São João Batista
 
-Site institucional com painel administrativo simples para a ONG Ação Social Paroquial São João Batista, com foco no Projeto Santa Dulce dos Pobres.
+Projeto de extensão desenvolvido por alunos da Univali para a Ação Social Paroquial São João Batista, entidade civil sem fins lucrativos com atuação em Itajaí/SC há 49 anos.
+
+O sistema funciona como carta de apresentação digital da ONG, com foco em divulgação dos projetos sociais, fortalecimento da transparência, valorização dos parceiros e geração de contato pelo WhatsApp.
+
+## Sistema em produção
+
+- **Site:** https://acao-social-paroquial-sao-joao-bati.vercel.app
+- **API:** https://asp-sjb-api.onrender.com
+
+> O servidor gratuito do Render pode demorar até 1 minuto para responder após um período sem uso. Aguarde e tente novamente.
 
 ## Stack
 
@@ -8,6 +17,7 @@ Site institucional com painel administrativo simples para a ONG Ação Social Pa
 - Backend: Node.js + Express
 - Banco: MongoDB Atlas via Mongoose
 - Autenticação: JWT + senha criptografada com bcrypt
+- Imagens: armazenadas no MongoDB como base64
 
 ## MongoDB Atlas
 
@@ -47,9 +57,6 @@ PORT=3000
 ADMIN_EMAIL=email-do-admin
 ADMIN_PASSWORD=senha-do-admin
 JWT_SECRET=uma-chave-grande-e-secreta
-CLOUDINARY_CLOUD_NAME=seu-cloud-name
-CLOUDINARY_API_KEY=sua-api-key
-CLOUDINARY_API_SECRET=seu-api-secret
 ```
 
 Opcao manual para rodar somente o backend:
@@ -96,17 +103,19 @@ Essas credenciais devem ficar somente no `.env` local e nas variáveis de ambien
 
 O painel permite enviar arquivos diretamente do computador para imagens de projetos, campanhas, notícias, galeria, logomarcas de parceiros e documentos de transparência.
 
-- Os arquivos ficam salvos no Cloudinary.
-- O MongoDB salva apenas a URL retornada pelo Cloudinary.
+- Os arquivos são armazenados diretamente no MongoDB como base64, sem necessidade de serviço externo.
 - Tipos aceitos: JPG, PNG, WEBP, SVG, PDF, DOC e DOCX.
-- Limite por arquivo: 10 MB.
-- Configure `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY` e `CLOUDINARY_API_SECRET` no `.env` local e nas variáveis da hospedagem.
+- Limite por arquivo: 5 MB.
 
 ## Publicacao
 
-Para publicar o backend, configure as variaveis de ambiente na hospedagem.
+O sistema está implantado com a seguinte arquitetura:
 
-Exemplo de variaveis em producao:
+- **Frontend:** Vercel (detecta automaticamente projetos Vite; `client/vercel.json` configura o roteamento SPA)
+- **Backend:** Render (Web Service gratuito com Node.js)
+- **Banco:** MongoDB Atlas (cluster gratuito em nuvem)
+
+Variáveis de ambiente necessárias no backend (Render):
 
 ```env
 MONGODB_URI=mongodb+srv://USUARIO:SENHA@cluster0.f2eoii1.mongodb.net/acao_social?retryWrites=true&w=majority&appName=Cluster0
@@ -114,12 +123,10 @@ PORT=3000
 ADMIN_EMAIL=seu-email-admin
 ADMIN_PASSWORD=sua-senha-admin
 JWT_SECRET=uma-chave-grande-e-secreta
-CLOUDINARY_CLOUD_NAME=seu-cloud-name
-CLOUDINARY_API_KEY=sua-api-key
-CLOUDINARY_API_SECRET=seu-api-secret
+CORS_ORIGINS=https://seu-frontend.vercel.app
 ```
 
-O frontend deve apontar para a URL publica do backend usando `VITE_API_URL`.
+O frontend deve apontar para a URL pública do backend usando a variável `VITE_API_URL` configurada no Vercel.
 
 ## Endpoints principais
 
